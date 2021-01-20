@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cxytiandi.sharding.repository.UserRepository">
+
+	<resultMap id="baseResultMap" type="com.cxytiandi.sharding.po.User">
+		<result column="userid" property="userid" jdbcType="INTEGER" />
+		<result column="city" property="city" jdbcType="VARCHAR" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<resultMap id="zuserMap" type="com.cxytiandi.sharding.po.Zuser">
+		<result column="id" property="id" jdbcType="INTEGER" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="age" property="age" jdbcType="INTEGER" />
+	</resultMap>
+
+	<resultMap id="orderResultMap" type="com.cxytiandi.sharding.po.OrderExtend">
+		<result column="orderid" property="orderid" jdbcType="INTEGER" />
+		<result column="ordernum" property="ordernum" jdbcType="VARCHAR" />
+		<result column="userid" property="userid" jdbcType="INTEGER" />
+		<result column="price" property="price" jdbcType="DECIMAL" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="addtime" property="addtime" jdbcType="INTEGER" />
+		<result column="username" property="username" jdbcType="VARCHAR" />
+		<result column="city" property="city" jdbcType="VARCHAR" />
+	</resultMap>
+	<resultMap id="testorderResultMap" type="com.cxytiandi.sharding.po.Order">
+		<result column="orderid" property="orderid" jdbcType="INTEGER" />
+		<result column="ordernum" property="ordernum" jdbcType="VARCHAR" />
+		<result column="userid" property="userid" jdbcType="INTEGER" />
+		<result column="price" property="price" jdbcType="DECIMAL" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="addtime" property="addtime" jdbcType="INTEGER" />
+	</resultMap>
+
+	<insert id="addUser">
+		INSERT INTO user (
+		userid, city, name
+		)
+		VALUES (
+		#{userid,jdbcType=INTEGER},
+		#{city,jdbcType=VARCHAR},
+		#{name,jdbcType=VARCHAR}
+		)
+	</insert>
+
+	<select id="list" resultMap="baseResultMap">
+		SELECT u.* FROM user u
+	</select>
+	<select id="listPage" resultMap="baseResultMap"
+		parameterType="com.cxytiandi.sharding.po.UserVO">
+		SELECT u.* FROM user u
+		<if test="name != null">
+			order by name
+		</if>
+		<if test="rowStartNumber != null and rowCount != null">
+			limit ${rowStartNumber},${rowCount}
+		</if>
+	</select>
+
+	<select id="findById" resultMap="baseResultMap">
+		SELECT u.* FROM user u WHERE
+		u.userid=#{userid,jdbcType=INTEGER}
+	</select>
+
+	<select id="findByIds" resultMap="baseResultMap">
+		SELECT u.* FROM user u WHERE u.userid in
+		<foreach close=")" collection="list" item="id" open="("
+			separator=",">
+			#{id}
+		</foreach>
+	</select>
+
+	<select id="findByName" resultMap="baseResultMap"
+		parameterType="com.cxytiandi.sharding.po.UserVO">
+		SELECT u.* FROM user u WHERE
+		u.name=#{name,jdbcType=VARCHAR}
+	</select>
+	<select id="getzuser" resultMap="zuserMap">
+		SELECT u.* FROM z_user u WHERE
+		u.name=#{name,jdbcType=VARCHAR}
+	</select>
+	<select id="getzuserId" resultMap="zuserMap">
+		SELECT u.* FROM z_user u WHERE
+		u.id=#{id,jdbcType=VARCHAR}
+	</select>
+	<select id="getzuserAge" resultMap="zuserMap">
+		SELECT u.* FROM z_user u
+		WHERE
+		u.age=#{age,jdbcType=VARCHAR}
+	</select>
+	<!-- <select id="findByName" resultMap="baseResultMap"> SELECT u.* FROM 
+		user u WHERE u.name LIKE CONCAT('%',#{name},'%') </select> -->
+
+	<select id="findBycity" resultMap="baseResultMap">
+		SELECT u.* FROM user u WHERE
+		u.city=#{city,jdbcType=VARCHAR}
+	</select>
+
+
+	<insert id="addOrder">
+		INSERT INTO order_user (
+		orderid, ordernum, userid,
+		price, name, addtime
+		)
+		VALUES (
+		#{orderid,jdbcType=INTEGER},
+		#{ordernum,jdbcType=VARCHAR},
+		#{userid,jdbcType=INTEGER},
+		#{price,jdbcType=DECIMAL},
+		#{name,jdbcType=VARCHAR},
+		#{addtime,jdbcType=INTEGER}
+		)
+	</insert>
+
+	<!-- 查询用户订单 -->
+	<select id="getUserOrder" resultMap="orderResultMap">
+		SELECT
+		u.userid,
+		u.city,
+		u.name username,
+		ou.orderid,
+		ou.ordernum,
+		ou.price,
+		ou.addtime,
+		ou.name
+		FROM user u
+		inner JOIN order_user ou ON ou.userid = u.userid
+		WHERE
+		u.userid = #{id}
+	</select>
+
+	<select id="getUserOrderprice" resultMap="testorderResultMap">
+		SELECT
+		ou.*
+		FROM order_user ou
+		WHERE
+		ou.price = #{price,jdbcType=DECIMAL}
+	</select>
+	<select id="getUserOrderaddTime" resultMap="testorderResultMap">
+		SELECT
+		ou.*
+		FROM order_user ou
+		WHERE
+		ou.addtime = #{addtime,jdbcType=INTEGER}
+	</select>
+
+</mapper>

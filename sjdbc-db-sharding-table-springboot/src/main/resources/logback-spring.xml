@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+    <!--<root level="INFO">
+        <appender name="logFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender"/>
+    </root>-->
+    <!-- 配置控制台appender-->
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>文件记录-%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <!-- 配置Sentry appender 将记录阈值重写WARN级别-->
+    <!-- <appender name="Sentry" class="io.sentry.logback.SentryAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+    </appender> -->
+    <!-- 启用控制台和Sentry追加器,提供控制台作为设置为不同日志记录阈值的非Sentry记录的实例-->
+    <root level="INFO">
+        <appender name="logFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender"/>
+    </root>
+</configuration>
